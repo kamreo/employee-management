@@ -21,26 +21,6 @@ function pagination(totalpages, currentpage) {
    
     $("#pagination").html(pagelist);
   }
-   
-  // get employee row
-  function getemployeerow(employee) {
-    var employeeRow = "";
-    if (employee) {
-      employeeRow = `<tr>
-            <td class="align-middle">${employee.name}</td>
-            <td class="align-middle">${employee.firstname}</td>
-            <td class="align-middle">${employee.lastname}</td>
-            <td class="align-middle">${employee.birthdate}</td>
-            <td class="align-middle">${employee.group_id}</td>
-            <td class="align-middle">
-              <a href="#" class="btn btn-warning mr-3 editemployee add-edit" data-toggle="modal" data-target="#employeeModal"
-                title="Edit" data-id="${employee.id}">Edit</a>
-              <a href="#" class="btn btn-danger deletetemployee" data-id="${employee.id}" title="Delete" data-id="${employee.id}">Delete</a>
-            </td>
-          </tr>`;
-    }
-    return employeeRow;
-  }
 
    // get group row
    function getgrouprow(group) {
@@ -59,60 +39,27 @@ function pagination(totalpages, currentpage) {
     return groupRow;
   }
 
-    // fills groups select in modal form
-    function fillGroupsSelect() {
-    $.ajax({
-        url: "/employee-management-system/ajax.php",
-        type: "GET",
-        dataType: "json",
-        data: {action: "getallgroups" },
-        success: function (groups) {
-            if (groups) {
-                $.each(groups, function (index, group) {
-                    console.log(group);
-                    $("#addform .group-select").append(`<option value="${group.id}">${group.name}</option>`);
-                });
-            }
-            $("#overlay").fadeOut();
-        },
-        error: function () {
-            console.log("something went wrong");
-        },
-        });
-    }
-   
-  // get employees list
-  function listemployee() {
-    var pageno = $("#currentpage").val();
-    $.ajax({
+  // fills employees select in modal form
+  function fillEmployeesSelect() {
+  $.ajax({
       url: "/employee-management-system/ajax.php",
       type: "GET",
       dataType: "json",
-      data: { page: pageno, action: "getusers" },
-      beforeSend: function () {
-        $("#overlay").fadeIn();
-      },
-      success: function (rows) {
-        console.log(rows);  
-        if (rows.jsonemplyee) { 
-          var employeeslist = "";
-          $.each(rows.jsonemplyee, function (index, employee) {
-            employeeslist += getemployeerow(employee);
-          });
-          $("#employeetable tbody").html(employeeslist);
-          let totalemployees = rows.count;
-          let totalpages = Math.ceil(parseInt(totalemployees) / 4);
-          const currentpage = $("#currentpage").val();
-          pagination(totalpages, currentpage);
+      data: {action: "getallemployees" },
+      success: function (employees) {
+          if (employees) {
+              $.each(employees, function (index, employee) {
+                  $("#addform .employee-select").append(`<option value="${employee.id}">${employee.name}</option>`);
+              });
+          }
           $("#overlay").fadeOut();
-        }
       },
       error: function () {
-        console.log("something went wrong");
+          console.log("something went wrong");
       },
-    });
+      });
   }
-
+   
   function listgroups() {
     var pageno = $("#currentpage").val();
     $.ajax({
@@ -152,14 +99,13 @@ function pagination(totalpages, currentpage) {
       var $this = $(this);
       const pagenum = $this.data("page");
       $("#currentpage").val(pagenum);
-      listemployee();
+      listgroups();
       $this.parent().siblings().removeClass("active");
       $this.parent().addClass("active");
     });
     // form reset on new button
     $("#addnewbtn").on("click", function () {
       $("#addform")[0].reset();
-      $("#employeeid").val("");
       $("#groupid").val("");
     });
      
@@ -199,11 +145,13 @@ function pagination(totalpages, currentpage) {
         $("#groupid").val().length > 0
           ? "Group has been updated Successfully!"
           : "New group has been added Successfully!";
+      
+
       $.ajax({
         url: "/employee-management-system/ajax.php",
         type: "POST",
         dataType: "json",
-        data: new FormData(this),
+        data:  new FormData(this),
         processData: false,
         contentType: false,
         beforeSend: function () {
@@ -223,6 +171,99 @@ function pagination(totalpages, currentpage) {
         },
       });
     });
-    listgroups();
 
+    //get group
+    $(document).on("click", "a.editgroup", function () {
+      let groupid = $(this).data("id");
+      let employeeContainer = $('#addform .group-employees');
+      let idsContainer =  $('#addform #employee-ids');
+      console.log(idsContainer);
+      $(employeeContainer).empty();
+      $(idsContainer).val('');
+
+      $.ajax({
+        url: "/employee-management-system/ajax.php",
+        type: "GET",
+        dataType: "json",
+        data: { id: groupid, action: "getgroup" },
+        beforeSend: function () {
+          $("#overlay").fadeIn();
+        },
+        success: function (group) {
+          console.log(group);
+          if (group) {
+            $("#name").val(group.name);
+            $("#groupid").val(group.id);
+            for(i=0;i<group.employees.length;i++){
+              $(employeeContainer).append(`<div class="employee" id="${group.employees[i].id}"><div>${group.employees[i].name}</div><div class="delete-group-employee">x</div></div>`);
+              $(idsContainer).val($(idsContainer).val() + group.employees[i].id +',');
+            }
+          }
+         
+          $("#overlay").fadeOut();
+        },
+        error: function () {
+          console.log("something went wrong");
+        },
+      });
+    });
+
+    $('#addform .employee-select').on('change', function(){
+        let choice = $(this).find(":selected");
+        let employeeContainer = $('#addform .group-employees');
+        if($(employeeContainer).find(`div[id='${$(choice).val()}']`).length !== 0){
+        }
+        else{
+          $(employeeContainer).append(`<div class="employee" id="${$(choice).val()}"><div>${$(choice).text()}</div><div class="delete-group-employee">x</div></div>`);
+          $('#addform #employee-ids').val($('#addform #employee-ids').val() + $(choice).val()+',');
+        }
+    });
+
+    $('#addform').on('click', '.delete-group-employee', function(){
+      let employee = $(this).closest('.employee');
+      let employeeId = $(employee).attr('id');
+      $(employee).remove();
+      let ids = $('#employee-ids').val();
+      let idsArray = ids.split(',');
+      const index = idsArray.indexOf(employeeId);
+      if (index > -1) {
+        idsArray.splice(index, 1);
+      }
+      $('#employee-ids').val(idsArray.join(','));
+
+    });
+
+    // delete group
+    $(document).on("click", "a.deletegroup", function (e) {
+      e.preventDefault();
+      var pid = $(this).data("id");
+      if (confirm("Are you sure want to delete this?")) {
+        $.ajax({
+          url: "/employee-management-system/ajax.php",
+          type: "GET",
+          dataType: "json",
+          data: { id: pid, action: "deletegroup" },
+          beforeSend: function () {
+            $("#overlay").fadeIn();
+          },
+          success: function (res) {
+            if (res.deleted == 1) {
+              $(".message")
+                .html("group has been deleted successfully!")
+                .fadeIn()
+                .delay(3000)
+                .fadeOut();
+              listgroups();
+              $("#overlay").fadeOut();
+            }
+          },
+          error: function () {
+            console.log("something went wrong");
+          },
+        });
+      }
+    });
+
+    listgroups();
+    fillEmployeesSelect();
   });

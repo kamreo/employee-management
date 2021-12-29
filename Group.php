@@ -114,6 +114,21 @@ class Group extends Database
         }
 
     }
-     
-    
+
+     // delete row using id
+     public function deleteRow($id)
+     {
+         $sql = "DELETE FROM {$this->tableName}  WHERE id=:id";
+         $stmt = $this->conn->prepare($sql);
+         try {
+             $stmt->execute([':id' => $id]);
+             if ($stmt->rowCount() > 0) {
+                 return true;
+             }
+         } catch (PDOException $e) {
+             echo "Error: " . $e->getMessage();
+             return false;
+         }
+  
+     }
 } //End Class Group

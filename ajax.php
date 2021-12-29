@@ -87,9 +87,17 @@ if ($action == 'search') {
     exit();
 }
 
+if ($action == "getallemployees") {
+    $employees = $employeeObj->getEmployees();
+    echo json_encode($employees);
+    exit();
+}
+
 //groups
 if ($action == 'addnewGroup' && !empty($_POST)) {
     $name = $_POST['name'];
+    $employees = explode(',',$_POST['employee-ids']);
+    array_pop($employees);
     $groupID = (!empty($_POST['groupid'])) ? $_POST['groupid'] : '';
 
     $groupData = [
@@ -100,6 +108,12 @@ if ($action == 'addnewGroup' && !empty($_POST)) {
         $groupObj->update($groupData, $groupID);
     } else {
         $groupID = $groupObj->add($groupData);
+    }
+
+    //clearing group for all users 
+    $employeeObj->clearGroup($groupID);
+    foreach($employees as $employeeID){
+        $employeeObj->updateGroup($employeeID, $groupID);
     }
  
     if (!empty($groupID)) {
@@ -130,5 +144,31 @@ if ($action == "getgroups") {
     $groupjson = ['count' => $total, 'jsongroup' => $groupslist];
     echo json_encode($groupjson);
     exit();
+}
+
+if ($action == "getgroup") {
+    $groupID = (!empty($_GET['id'])) ? $_GET['id'] : '';
+    if (!empty($groupID)) {
+        $employees = $employeeObj->getEmployeesByGroup($groupID);
+        $groupjsongetgroup = $groupObj->getRow('id', $groupID);
+        $groupjsongetgroup+= array('employees' => $employees);
+        echo json_encode($groupjsongetgroup);
+        exit();
+    }
+}
+
+if ($action == "deletegroup") {
+    $groupID = (!empty($_GET['id'])) ? $_GET['id'] : '';
+    if (!empty($groupID)) {
+        $isDeleted = $groupObj->deleteRow($groupID);
+        if ($isDeleted) {
+            $message = ['deleted' => 1];
+            $employeeObj->clearGroup($groupID);
+        } else {
+            $message = ['deleted' => 0];
+        }
+        echo json_encode($message);
+        exit();
+    }
 }
  

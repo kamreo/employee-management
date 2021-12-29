@@ -30,3 +30,18 @@
     text-align: center;
     padding-bottom: 30px;
 }
+
+.group-employees{
+  display: flex;
+  flex-direction: column;
+}
+
+.employee{
+  display: flex;
+  flex-direction: row;
+}
+
+.delete-group-employee{
+  padding-left: 20px;
+  color: red;
+}

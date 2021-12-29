@@ -31,7 +31,7 @@ function pagination(totalpages, currentpage) {
             <td class="align-middle">${employee.firstname}</td>
             <td class="align-middle">${employee.lastname}</td>
             <td class="align-middle">${employee.birthdate}</td>
-            <td class="align-middle">${employee.group_id}</td>
+            <td class="align-middle">${employee.group_id == 0 ? 'brak' : employee.group_id}</td>
             <td class="align-middle">
               <a href="#" class="btn btn-warning mr-3 editemployee add-edit" data-toggle="modal" data-target="#employeeModal"
                 title="Edit" data-id="${employee.id}">Edit</a>
@@ -112,37 +112,6 @@ function pagination(totalpages, currentpage) {
       },
     });
   }
-
-  function listgroups() {
-    var pageno = $("#currentpage").val();
-    $.ajax({
-      url: "/employee-management-system/ajax.php",
-      type: "GET",
-      dataType: "json",
-      data: { page: pageno, action: "getgroups" },
-      beforeSend: function () {
-        $("#overlay").fadeIn();
-      },
-      success: function (rows) {
-        console.log(rows);  
-        if (rows.jsongroup) { 
-          var groupslist = "";
-          $.each(rows.jsongroup, function (index, group) {
-            groupslist += getgrouprow(group);
-          });
-          $("#groupstable tbody").html(groupslist);
-          let totalgroups = rows.count;
-          let totalpages = Math.ceil(parseInt(totalgroups) / 4);
-          const currentpage = $("#currentpage").val();
-          pagination(totalpages, currentpage);
-          $("#overlay").fadeOut();
-        }
-      },
-      error: function () {
-        console.log("something went wrong");
-      },
-    });
-  }
    
    
   $(document).ready(function () {
@@ -160,7 +129,6 @@ function pagination(totalpages, currentpage) {
     $("#addnewbtn").on("click", function () {
       $("#addform")[0].reset();
       $("#employeeid").val("");
-      $("#groupid").val("");
     });
      
       // searching

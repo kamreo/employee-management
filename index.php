@@ -43,7 +43,7 @@
           <th scope="col">First name</th>
           <th scope="col">Last name</th>
           <th scope="col">Birthdate</th>
-          <th scope="col">Group</th>
+          <th scope="col">Group ID</th>
           <th scope="col">Manage user</th>
         </tr>
       </thead>

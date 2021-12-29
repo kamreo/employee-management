@@ -17,8 +17,21 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="message-text" class="col-form-label">Users:</label>
-            <div class="input-group mb-3 group-users-list">
+            <label for="message-text" class="col-form-label">Add employee (if you add employee that already has group, it will automatically change his group)</label>
+            <div class="input-group mb-3">
+              <select class="employee-select form-select w-100" name="group" id="group">
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="col-form-label">Employees in group:</label>
+            <div class="input-group group-employees mb-3 w-100">
+
+            </div>
+          </div>
+          <div class="form-group" style="display:none">
+            <div class="input-group group-employees-ids">
+            <input type="text" class="form-control" id="employee-ids" name="employee-ids" >  
             </div>
           </div>
         </div>

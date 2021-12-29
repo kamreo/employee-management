@@ -134,4 +134,58 @@ class Employee extends Database
         return $results;
     }
 
+    //function to get groups for select in modal form
+    public function getEmployees()
+    {
+        $sql = "SELECT * FROM {$this->tableName} ORDER BY id ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        if ($stmt->rowCount() > 0) {
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+    
+            $results = [];
+        }
+        return $results;
+    }
+
+    public function updateGroup($id, $groupId){
+        $sql = "UPDATE {$this->tableName} SET group_id={$groupId} WHERE id={$id}";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        if ($stmt->rowCount() > 0) {
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+    
+            $results = [];
+        }
+        return $results;
+    }
+
+    public function getEmployeesByGroup($groupId){
+        $sql = "SELECT * FROM {$this->tableName} WHERE group_id = {$groupId}";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        if ($stmt->rowCount() > 0) {
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+ 
+            $results = [];
+        }
+        return $results;
+    }
+
+    public function clearGroup($groupId){
+        $sql = "UPDATE {$this->tableName} SET group_id = '' WHERE group_id = {$groupId}";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        if ($stmt->rowCount() > 0) {
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+ 
+            $results = [];
+        }
+        return $results;
+    }
+
 } //End Class Employee
