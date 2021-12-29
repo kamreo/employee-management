@@ -112,19 +112,19 @@ function pagination(totalpages, currentpage) {
       // searching
     $("#searchinput").on("keyup", function () {
       const searchText = $(this).val();
-      if (searchText.length > 1) {
+      if (searchText.length > 0) {
         $.ajax({
           url: "/employee-management-system/ajax.php",
           type: "GET",
           dataType: "json",
-          data: { searchQuery: searchText, action: "search" },
-          success: function (employees) {
-            if (employees) {
-              var employeeslist = "";
-              $.each(employees, function (index, employee) {
-                employeeslist += getemployeerow(employee);
+          data: { searchQuery: searchText, action: "searchGroup" },
+          success: function (groups) {
+            if (groups) {
+              var groupslist = "";
+              $.each(groups, function (index, group) {
+                groupslist += getgrouprow(group);
               });
-              $("#employeetable tbody").html(employeeslist);
+              $("#groupstable tbody").html(groupslist);
               $("#pagination").hide();
             }
           },
@@ -133,7 +133,7 @@ function pagination(totalpages, currentpage) {
           },
         });
       } else {
-        listemployee();
+        listgroups();
         $("#pagination").show();
       }
     });

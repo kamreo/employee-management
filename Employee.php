@@ -124,7 +124,7 @@ class Employee extends Database
     {
         $sql = "SELECT * FROM {$this->tableName} WHERE name LIKE :search ORDER BY id DESC LIMIT {$start},{$limit}";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([':search' => "{$searchText}%"]);
+        $stmt->execute([':search' => "%{$searchText}%"]);
         if ($stmt->rowCount() > 0) {
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {

@@ -80,7 +80,7 @@ if ($action == "deletetemployee") {
     }
 }
  
-if ($action == 'search') {
+if ($action == 'searchEmployee') {
     $queryString = (!empty($_GET['searchQuery'])) ? trim($_GET['searchQuery']) : '';
     $results = $employeeObj->searchEmployee($queryString);
     echo json_encode($results);
@@ -170,5 +170,12 @@ if ($action == "deletegroup") {
         echo json_encode($message);
         exit();
     }
+}
+
+if ($action == 'searchGroup') {
+    $queryString = (!empty($_GET['searchQuery'])) ? trim($_GET['searchQuery']) : '';
+    $results = $groupObj->searchGroup($queryString);
+    echo json_encode($results);
+    exit();
 }
  

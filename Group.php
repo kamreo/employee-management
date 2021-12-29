@@ -131,4 +131,19 @@ class Group extends Database
          }
   
      }
+
+    //function for search table fields name
+    public function searchGroup($searchText, $start = 0, $limit = 4)
+    {
+        $sql = "SELECT * FROM {$this->tableName} WHERE name LIKE :search ORDER BY id DESC LIMIT {$start},{$limit}";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':search' => "%{$searchText}%"]);
+        if ($stmt->rowCount() > 0) {
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $results = [];
+        }
+ 
+        return $results;
+    }
 } //End Class Group

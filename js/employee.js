@@ -42,44 +42,27 @@ function pagination(totalpages, currentpage) {
     return employeeRow;
   }
 
-   // get group row
-   function getgrouprow(group) {
-    var groupRow = "";
-    if (group) {
-      groupRow = `<tr>
-            <td class="align-middle">${group.id}</td>
-            <td class="align-middle">${group.name}</td>
-            <td class="align-middle">
-              <a href="#" class="btn btn-warning mr-3 editgroup add-edit" data-toggle="modal" data-target="#groupModal"
-                title="Edit" data-id="${group.id}">Edit</a>
-              <a href="#" class="btn btn-danger deletegroup" data-id="${group.id}" title="Delete" data-id="${group.id}">Delete</a>
-            </td>
-          </tr>`;
-    }
-    return groupRow;
+  // fills groups select in modal form
+  function fillGroupsSelect() {
+  $.ajax({
+      url: "/employee-management-system/ajax.php",
+      type: "GET",
+      dataType: "json",
+      data: {action: "getallgroups" },
+      success: function (groups) {
+          if (groups) {
+              $.each(groups, function (index, group) {
+                  console.log(group);
+                  $("#addform .group-select").append(`<option value="${group.id}">${group.name}</option>`);
+              });
+          }
+          $("#overlay").fadeOut();
+      },
+      error: function () {
+          console.log("something went wrong");
+      },
+      });
   }
-
-    // fills groups select in modal form
-    function fillGroupsSelect() {
-    $.ajax({
-        url: "/employee-management-system/ajax.php",
-        type: "GET",
-        dataType: "json",
-        data: {action: "getallgroups" },
-        success: function (groups) {
-            if (groups) {
-                $.each(groups, function (index, group) {
-                    console.log(group);
-                    $("#addform .group-select").append(`<option value="${group.id}">${group.name}</option>`);
-                });
-            }
-            $("#overlay").fadeOut();
-        },
-        error: function () {
-            console.log("something went wrong");
-        },
-        });
-    }
    
   // get employees list
   function listemployee() {
@@ -139,7 +122,7 @@ function pagination(totalpages, currentpage) {
           url: "/employee-management-system/ajax.php",
           type: "GET",
           dataType: "json",
-          data: { searchQuery: searchText, action: "search" },
+          data: { searchQuery: searchText, action: "searchEmployee" },
           success: function (employees) {
             if (employees) {
               var employeeslist = "";
